@@ -1,13 +1,28 @@
 from typing import Any
 from django import views
-from django.shortcuts import redirect
+from django.contrib.auth import authenticate, login, logout
+from django.http import HttpRequest
+from django.http.response import HttpResponse as HttpResponse
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, CreateView
+from django.views.generic import TemplateView, CreateView, FormView
 
-from ecomapp.forms import CheckoutForm, CustomerRegistrationForm
+from ecomapp.forms import CheckoutForm, CustomerLoginForm, CustomerRegistrationForm
 from .models import *
 # Create your views here.
-class HomeView(TemplateView):
+
+
+class EcomMixin(object):
+    def dispatch(self, request, *args, **kwargs):
+        cart_id = request.session.get('cart_id', None)
+        if cart_id:
+            cart_obj = Cart.objects.get(id=cart_id)
+            if request.user.is_authenticated and request.user.customer:
+                cart_obj.customer = request.user.customer
+                cart_obj.save()
+        return super().dispatch(request, *args, **kwargs)
+    
+class HomeView(EcomMixin, TemplateView):
     template_name = 'home.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -16,10 +31,10 @@ class HomeView(TemplateView):
         # context['allcategories'] = Category.objects.all()
         return context 
 
-class AboutView(TemplateView):
+class AboutView(EcomMixin, TemplateView):
     template_name = 'about.html'
 
-class AddToCart(TemplateView):
+class AddToCart(EcomMixin, TemplateView):
     template_name = 'addtocart.html'
 
     def get_context_data(self, **kwargs):
@@ -60,7 +75,7 @@ class AddToCart(TemplateView):
 
 
 
-class AllProducts(TemplateView):
+class AllProducts(EcomMixin, TemplateView):
     template_name = 'allProducts.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -68,10 +83,18 @@ class AllProducts(TemplateView):
         return context
 
 
-class CheckOut(CreateView):
+class CheckOut(EcomMixin, CreateView):
     template_name = 'checkout.html'
     form_class = CheckoutForm
     success_url = reverse_lazy('ecomapp:home')
+    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        # print('Dispatching the request')
+        user = request.user
+        if request.user.is_authenticated and request.user.customer:
+            print('User is authenticated')
+        else:    
+            return redirect('/login/?next=/checkout/')
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -90,20 +113,52 @@ class CheckOut(CreateView):
             form.instance.discount = 0
             form.instance.total = cart_obj.total
             form.instance.order_status = "Order Received"
-            # del self.request.session['cart_id']
+            del self.request.session['cart_id']
         else:
             return redirect('ecomapp:home')
         return super().form_valid(form)
     
 
-class ContactUs(TemplateView):
+class ContactUs(EcomMixin, TemplateView):
     template_name = 'contactus.html'
-class CustomerLogin(TemplateView):
+class CustomerLogin(FormView):
     template_name = 'customer_login.html'
+    form_class = CustomerLoginForm
+    success_url = reverse_lazy('ecomapp:home')
+    def form_valid(self, form):
+        uname = form.cleaned_data.get('username')
+        pword = form.cleaned_data.get('password')
+        usr = authenticate(username=uname, password=pword)
+        if usr is not None and usr.customer:
+            login(self.request, usr)
+        else:
+            return render(self.request, self.template_name, {'form': self.form_class, 'error': 'Username or Password is incorrect'})
+        return super().form_valid(form)
+    def get_success_url(self):
+        if 'next' in self.request.GET:
+            next_url = self.request.GET.get('next')
+            return next_url
+        else:
+            return self.success_url
+
 class CustomerOrder(TemplateView):
     template_name = 'customer_order.html'
 class CustomerProfile(TemplateView):
     template_name = 'customer_profile.html'
+    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        if request.user.is_authenticated and request.user.customer:
+            pass
+        else:
+            return redirect('/login/?next=/profile/')
+        return super().dispatch(request, *args, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        customer = self.request.user.customer
+        context['customer'] = customer
+        orders = Order.objects.filter(cart__customer=customer).order_by('-id')
+        context['orders'] = orders
+        return context
+
 class CustomerRegistration(CreateView):
     template_name = 'customerRegistration.html'
     form_class = CustomerRegistrationForm
@@ -126,11 +181,17 @@ class CustomerRegistration(CreateView):
         form.instance.user = user
         return super().form_valid(form)
 
+class CustomerLogout(views.View):
+    def get(self, request):
+        logout(request)
+        return redirect('ecomapp:home')
+    
+
 class ForgetPassword(TemplateView):
     template_name = 'forget_password.html'
-class Home(TemplateView):
+class Home(EcomMixin, TemplateView):
     template_name = 'home.html'
-class MyCart(TemplateView):
+class MyCart(EcomMixin, TemplateView):
     template_name = 'my_cart.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -139,7 +200,7 @@ class MyCart(TemplateView):
             cart = Cart.objects.get(id=cart_id)
             context['cart'] = cart
         return context
-class ManageCartView(TemplateView):
+class ManageCartView(EcomMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         cp_id = self.kwargs['cp_id']
         action = request.GET.get('action')
@@ -176,7 +237,7 @@ class ManageCartView(TemplateView):
             pass
         return redirect('ecomapp:mycart')
 
-class EmptyCart(TemplateView):
+class EmptyCart(EcomMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         cart_id = request.session.get('cart_id', None)
         if cart_id:
@@ -188,7 +249,7 @@ class EmptyCart(TemplateView):
     
 class PasswordReset(TemplateView):
     template_name = 'password_reset.html'
-class ProdutDetails(TemplateView):
+class ProdutDetails(EcomMixin, TemplateView):
     template_name = 'product_details.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -199,6 +260,6 @@ class ProdutDetails(TemplateView):
         context['product'] = product
         return context 
     
-class Search(TemplateView):
+class Search(EcomMixin, TemplateView):
     template_name = 'search.html'
 

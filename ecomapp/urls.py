@@ -24,7 +24,9 @@ urlpatterns = [
 
     path("register/",
          CustomerRegistration.as_view(), name="customerregistration"),
+     path("logout/", CustomerLogout.as_view(), name="customerlogout"),
 
+     
     path("login/", CustomerLogin.as_view(), name="customerlogin"),
 
     path("profile/", CustomerProfile.as_view(), name="customerprofile"),
