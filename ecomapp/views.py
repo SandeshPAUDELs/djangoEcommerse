@@ -9,6 +9,7 @@ from django.views.generic import TemplateView, CreateView, FormView
 
 from ecomapp.forms import CheckoutForm, CustomerLoginForm, CustomerRegistrationForm
 from .models import *
+from django.views.generic import DetailView
 # Create your views here.
 
 
@@ -141,8 +142,22 @@ class CustomerLogin(FormView):
         else:
             return self.success_url
 
-class CustomerOrder(TemplateView):
+class CustomerOrder(DetailView):
     template_name = 'customer_order.html'
+    model = Order
+    context_object_name = 'ord_obj'
+    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        if request.user.is_authenticated and request.user.customer:
+            order_id = self.kwargs['pk']
+            order = Order.objects.get(id=order_id)
+            if request.user.customer != order.cart.customer:
+                return redirect('/profile/')
+        else:
+            return redirect('/login/?next=/profile/')
+        return super().dispatch(request, *args, **kwargs)
+
+
+
 class CustomerProfile(TemplateView):
     template_name = 'customer_profile.html'
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
@@ -189,8 +204,11 @@ class CustomerLogout(views.View):
 
 class ForgetPassword(TemplateView):
     template_name = 'forget_password.html'
+
 class Home(EcomMixin, TemplateView):
     template_name = 'home.html'
+
+
 class MyCart(EcomMixin, TemplateView):
     template_name = 'my_cart.html'
     def get_context_data(self, **kwargs):
@@ -249,6 +267,8 @@ class EmptyCart(EcomMixin, TemplateView):
     
 class PasswordReset(TemplateView):
     template_name = 'password_reset.html'
+
+
 class ProdutDetails(EcomMixin, TemplateView):
     template_name = 'product_details.html'
     def get_context_data(self, **kwargs):
