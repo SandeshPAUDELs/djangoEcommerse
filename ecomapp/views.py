@@ -155,45 +155,43 @@ class EmptyCart(EcomMixin, TemplateView):
         return redirect('ecomapp:mycart')
     
 
-
 class CheckOut(EcomMixin, CreateView):
-    template_name = 'checkout.html'
-    form_class = CheckoutForm
-    success_url = reverse_lazy('ecomapp:home')
-    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        # print('Dispatching the request')
-        user = request.user
-        if request.user.is_authenticated and request.user.customer:
-            print('User is authenticated')
-        else:    
-            return redirect('/login/?next=/checkout/')
-        return super().dispatch(request, *args, **kwargs)
+        template_name = 'checkout.html'
+        form_class = CheckoutForm
+        success_url = reverse_lazy('ecomapp:home')
+        
+        def dispatch(self, request, *args, **kwargs):
+            if request.user.is_authenticated and hasattr(request.user, 'customer'):
+                return super().dispatch(request, *args, **kwargs)
+            else:
+                return redirect('/login/?next=/checkout/')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        cart_id = self.request.session.get('cart_id', None)
-        if cart_id:
-            cart_obj = Cart.objects.get(id=cart_id)
-            context['cart'] = cart_obj
-        return context
-    
-    def  form_valid(self, form):
-        cart_id = self.request.session.get('cart_id')
-        if cart_id:
-            cart_obj = Cart.objects.get(id=cart_id)
-            form.instance.cart = cart_obj
-            form.instance.subTotal = cart_obj.total
-            form.instance.discount = 0
-            form.instance.total = cart_obj.total
-            form.instance.order_status = "Order Received"
-            del self.request.session['cart_id']
-        else:
-            return redirect('ecomapp:home')
-        return super().form_valid(form)
+        def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            cart_id = self.request.session.get('cart_id', None)
+            if cart_id:
+                cart_obj = Cart.objects.get(id=cart_id)
+                context['cart'] = cart_obj
+            return context
+        
+        def form_valid(self, form):
+            cart_id = self.request.session.get('cart_id')
+            if cart_id:
+                cart_obj = Cart.objects.get(id=cart_id)
+                form.instance.cart = cart_obj
+                form.instance.subTotal = cart_obj.total
+                form.instance.discount = 0
+                form.instance.total = cart_obj.total
+                form.instance.order_status = "Order Received"
+                del self.request.session['cart_id']
+            else:
+                return redirect('ecomapp:home')
+            return super().form_valid(form)
     
 
 class ContactUs(EcomMixin, TemplateView):
     template_name = 'contactus.html'
+
 class CustomerOrder(DetailView):
     template_name = 'customer_order.html'
     model = Order
@@ -219,7 +217,9 @@ class CustomerLogin(FormView):
         uname = form.cleaned_data.get('username')
         pword = form.cleaned_data.get('password')
         usr = authenticate(username=uname, password=pword)
-        if usr is not None and usr.customer:
+        # if usr is not None and usr.customer:
+        if usr is not None and hasattr(usr, 'customer'):
+
             login(self.request, usr)
         else:
             return render(self.request, self.template_name, {'form': self.form_class, 'error': 'Username or Password is incorrect'})
@@ -248,7 +248,7 @@ class CustomerProfile(TemplateView):
         context['orders'] = orders
         return context
 
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 
 class CustomerRegistration(CreateView):
     template_name = 'customerRegistration.html'
