@@ -134,7 +134,7 @@ class CustomerLogin(FormView):
         uname = form.cleaned_data.get('username')
         pword = form.cleaned_data.get('password')
         usr = authenticate(username=uname, password=pword)
-        if usr is not None and usr.customer:
+        if usr is not None and hasattr(usr, 'customer'):
             login(self.request, usr)
         else:
             return render(self.request, self.template_name, {'form': self.form_class, 'error': 'Username or Password is incorrect'})
