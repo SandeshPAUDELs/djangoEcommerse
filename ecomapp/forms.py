@@ -13,3 +13,7 @@ class CustomerRegistrationForm(forms.ModelForm):
     class Meta:
         model = Customer
         fields = ['full_name', 'address', 'password', 'username']
+
+class CustomerLoginForm(forms.Form):
+    username = forms.CharField(widget=forms.TextInput())
+    password = forms.CharField(widget=forms.PasswordInput())

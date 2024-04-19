@@ -23,21 +23,29 @@
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'ecomapp:allproducts' %}">Categories</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'ecomapp:mycart' %}">Cart</a>
-            </li>
+            {% if request.user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'ecomapp:mycart' %}">Cart</a>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="checkLogin()">Cart</a>
+                </li>
+                {% load static %}
+            {% endif %}
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 My Account
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                {% comment %} {% if request.user.customer %} {% endcomment %}
+                {% if request.user.customer %}
+                Welcome {{ request.user.customer.name }}
                 <a class="dropdown-item" href="{% url 'ecomapp:customerprofile' %}">My Profile</a>
-                {% comment %} <a class="dropdown-item" href="{% url 'ecomapp:customerlogout' %}">Logout</a> {% endcomment %}
-                {% comment %} {% else %} {% endcomment %}
+                 <a class="dropdown-item" href="{% url 'ecomapp:customerlogout' %}">Logout</a> 
+                {% else %}
                 <a class="dropdown-item" href="{% url 'ecomapp:customerregistration' %}">Register</a>
                 <a class="dropdown-item" href="{% url 'ecomapp:customerlogin' %}">Login</a>
-                {% comment %} {% endif %} {% endcomment %}
+                {% endif %}
                 </div>
             </li>
             </ul>
@@ -52,6 +60,7 @@
    
     {% block content %}
     {% endblock %}
+    <script src="{% static 'js/script.js' %}"></script>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
