@@ -1,7 +1,6 @@
 
 from django.urls import path
-from .views import *
-
+from ecomapp.views import *
 
 app_name = "ecomapp"
 urlpatterns = [

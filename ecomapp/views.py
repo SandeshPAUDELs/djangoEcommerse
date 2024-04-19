@@ -27,6 +27,9 @@ class EcomMixin(object):
                 cart_obj.save()
         return super().dispatch(request, *args, **kwargs)
     
+
+
+
 class HomeView(EcomMixin, TemplateView):
     template_name = 'home.html'
     def get_context_data(self, **kwargs):
@@ -35,6 +38,9 @@ class HomeView(EcomMixin, TemplateView):
         context['product_list'] = Product.objects.all().order_by("-id")
         # context['allcategories'] = Category.objects.all()
         return context 
+    
+
+
 
 class AboutView(EcomMixin, TemplateView):
     template_name = 'about.html'
