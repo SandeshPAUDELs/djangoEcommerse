@@ -21,9 +21,11 @@ urlpatterns = [
 
     path("checkout/", CheckOut.as_view(), name="checkout"),
 
-
     path("register/",
          CustomerRegistration.as_view(), name="customerregistration"),
+     path("logout/", CustomerLogout.as_view(), name="customerlogout"),
+
+     
      path("logout/", CustomerLogout.as_view(), name="customerlogout"),
 
      
@@ -40,6 +42,4 @@ urlpatterns = [
          PasswordReset.as_view(), name="passwordreset"),
 
     
-
-
 ]

@@ -1,14 +1,18 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
+from django.contrib.auth.models import AbstractUser, Group, Permission
 
 
-# Create your models here.
-class Customer(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    full_name = models.CharField(max_length = 200)
-    address = models.CharField(max_length = 200, null = True, blank = True)
-    joined_on = models.DateTimeField(auto_now_add=True)
 
+class Customer(AbstractUser):
+    profile_pic = models.ImageField(upload_to="profile_pics", default="profile_pics/default.png")
+    full_name = models.CharField(max_length=200)    
+    address = models.TextField()
+
+    # Redefine the relationships with unique related_name arguments
+    groups = models.ManyToManyField(Group, related_name='customer_set')
+    user_permissions = models.ManyToManyField(Permission, related_name='customer_set')
 
     def __str__(self):
         return self.full_name

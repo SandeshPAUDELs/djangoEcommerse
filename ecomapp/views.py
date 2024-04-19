@@ -4,6 +4,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpRequest
 from django.http.response import HttpResponse as HttpResponse
 from django.shortcuts import redirect, render
+from django.contrib.auth import authenticate, login, logout
+from django.http import HttpRequest
+from django.http.response import HttpResponse as HttpResponse
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, CreateView, FormView
 
