@@ -5,4 +5,5 @@ from ecomapp1 import views
 
 urlpatterns = [
     path('', views.index, name='home'),
+    path('search/', views.search, name='search'),
 ]

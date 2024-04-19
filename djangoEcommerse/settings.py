@@ -38,9 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'ecomapp',  # Add 'ecomapp' to INSTALLED_APPS
+    'ecomapp1',
+    'ecomapp',  
     'authentication',
-    'ecomapp1'
 ]
 
 MIDDLEWARE = [
@@ -58,7 +58,7 @@ ROOT_URLCONF = 'djangoEcommerse.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'ecomapp1/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
