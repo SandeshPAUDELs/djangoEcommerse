@@ -70,4 +70,42 @@ def mycart(request):
         return render(request, 'mycart.html', {'cart': cart})
     else:
         return render(request, 'mycart.html')
+    
 
+
+def managecart(request, cp_id):
+    action = request.GET.get('action')
+    cp_obj = CartProduct.objects.get(id=cp_id)
+
+    cart_obj = cp_obj.cart
+    if action == "inc":
+        cp_obj.quantity += 1
+        cp_obj.subtotal += cp_obj.rate
+        cp_obj.save()
+        cart_obj.total += cp_obj.rate
+        cart_obj.save() 
+    elif action == "dcr":
+        cp_obj.quantity -= 1
+        cp_obj.subtotal -= cp_obj.rate
+        cp_obj.save()
+        cart_obj.total -= cp_obj.rate
+        cart_obj.save()
+        if cp_obj.quantity == 0:
+            cp_obj.delete()
+    elif action == "rmv":
+        cart_obj.total -= cp_obj.subtotal
+        cart_obj.save()
+        cp_obj.delete()
+    else:
+        pass
+    return render(request, 'mycart.html', {'cart': cart_obj})
+
+
+def emptycart(request):
+    cart_id = request.session.get('cart_id', None)
+    if cart_id:
+        cart = Cart.objects.get(id=cart_id)
+        cart.cartproduct_set.all().delete()
+        cart.total = 0
+        cart.save()
+    return render(request, 'mycart.html')

@@ -11,14 +11,13 @@
     <h4>{{cat.title}}</h4>
     <hr>
     <div class="row">
-        {% for p in cat.product_set.all %}
-        <!-- cat.product_set.all mean  all the products present in that category -->
+        {% for product in cat.products.all %}
         <div class="col-md-3">
             <div class="m-4">
-                {% comment %} <h4><a href="{% url 'ecomapp:productdetail' p.slug %}">{{p.title}}</a></h4>
-                <img src="{{p.image.url}}" alt="" class="img-fluid" style="height: 2500; object-fit: cover;">
-                <p class="mt-3">Price: <strike>Rs. {{p.marked_price}}</strike> Rs. {{p.selling_price}}</p>
-                <a href="{% url 'ecomapp:addtocart' p.id %}" class="btn btn-primary addtocart">Add To Cart</a> {% endcomment %}
+                <h4><a href="{% url 'productdetail' product.slug %}">{{product.title}}</a></h4>
+                <img src="{{product.image.url}}" alt="" class="img-fluid" style="height: 250px; object-fit: cover;">
+                <p class="mt-3">Price: <strike>Rs. {{product.marked_price}}</strike> Rs. {{product.selling_price}}</p>
+                <a href="{% url 'addtocart' product.id %}" class="btn btn-primary addtocart">Add To Cart</a>
             </div>
         </div>
         {% endfor %}

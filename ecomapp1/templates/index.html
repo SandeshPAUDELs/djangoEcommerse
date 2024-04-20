@@ -20,8 +20,7 @@
                     <p class="card-text">{{p.title}}</p>
                     <div class="card-footer d-flex align-items-end pt-3 px-0 pb-0 mt-auto justify-content-between">
                         <a href="{% url 'product_details' p.slug%}" class="btn btn-primary">View Details</a>
-                        <!-- <button class="btn btn-outline-primary w-100 add-to-cart-button"
-                        data-type="product">Add to cart</button> -->
+                        
                         <a href="{% url 'addtocart' p.id %}" class="btn btn-primary addtocart">Add To Cart</a>
 
                         
