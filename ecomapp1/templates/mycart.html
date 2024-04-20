@@ -42,7 +42,7 @@
                     </tr>
                     {% if cart.cartproduct_set.all %}
                     <tr>
-                        <th><a class="btn btn-info" href="">Checkout</a></th>
+                        <th><a class="btn btn-info" href="{% url 'checkout' %}">Checkout</a></th>
                     </tr>
                     {% endif %}
                 </tbody>

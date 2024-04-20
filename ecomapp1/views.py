@@ -1,10 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 
 from django.contrib.auth.decorators import login_required
 from ecomapp1.models import Category, Product, Cart, CartProduct
 from django.shortcuts import render
 
-@login_required(login_url='loginPage')
 def index(request):
     product_list = Product.objects.all()
     return render(request, 'index.html', {'product_list': product_list})
@@ -19,7 +18,8 @@ def search(request):
 
 def categories(request):
     allcategories = Category.objects.all()
-    return render(request, 'categories.html', {'allcategories': allcategories})
+    products = Product.objects.all()  # Fetch all products
+    return render(request, 'categories.html', {'allcategories': allcategories, 'products': products})
 
 def product_details(request, slug):
     product = Product.objects.get(slug=slug)
@@ -28,10 +28,14 @@ def product_details(request, slug):
     return render(request, 'product_details.html', {'product': product})
 
 
-
+@login_required(login_url='loginPage')
 def addtocart(request, pro_id):
     # get product by id from url
     product = Product.objects.get(id=pro_id)
+
+    # check if user is authenticated
+    if not request.user.is_authenticated:
+        return render(request, 'login.html', {'message': 'Please login to add products to cart.'})
 
     # check if cart exists
     cart_id = request.session.get('cart_id', None)
@@ -63,13 +67,17 @@ def addtocart(request, pro_id):
     return render(request, 'addtocart.html', {'product': product})
 
 
+@login_required(login_url='loginPage')
 def mycart(request):
-    cart_id = request.session.get('cart_id', None)
-    if cart_id:
-        cart = Cart.objects.get(id=cart_id)
-        return render(request, 'mycart.html', {'cart': cart})
+    if request.user.is_authenticated:
+        cart_id = request.session.get('cart_id', None)
+        if cart_id:
+            cart = Cart.objects.get(id=cart_id)
+            return render(request, 'mycart.html', {'cart': cart})
+        else:
+            return render(request, 'mycart.html')
     else:
-        return render(request, 'mycart.html')
+        return render(request, 'login.html', {'message': 'Please login to View products In cart.'})
     
 
 
@@ -109,3 +117,11 @@ def emptycart(request):
         cart.total = 0
         cart.save()
     return render(request, 'mycart.html')
+
+@login_required
+def checkout(request):
+    return render(request, 'checkout.html')
+
+
+
+

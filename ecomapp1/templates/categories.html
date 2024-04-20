@@ -11,15 +11,17 @@
     <h4>{{cat.title}}</h4>
     <hr>
     <div class="row">
-        {% for product in cat.products.all %}
+        {% for product in products %}
+        {% if product.category == cat %}
         <div class="col-md-3">
             <div class="m-4">
-                <h4><a href="{% url 'productdetail' product.slug %}">{{product.title}}</a></h4>
+                <h4><a href="{% url 'product_details' product.slug %}">{{product.title}}</a></h4>
                 <img src="{{product.image.url}}" alt="" class="img-fluid" style="height: 250px; object-fit: cover;">
                 <p class="mt-3">Price: <strike>Rs. {{product.marked_price}}</strike> Rs. {{product.selling_price}}</p>
                 <a href="{% url 'addtocart' product.id %}" class="btn btn-primary addtocart">Add To Cart</a>
             </div>
         </div>
+        {% endif %}
         {% endfor %}
     </div>
     {% endfor %}
