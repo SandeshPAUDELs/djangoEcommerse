@@ -1,8 +1,12 @@
 from django.shortcuts import redirect, render
 
 from django.contrib.auth.decorators import login_required
-from ecomapp1.models import Category, Product, Cart, CartProduct
+from django.urls import reverse_lazy
+from ecomapp1.forms import CheckoutForm
+from ecomapp1.models import Category, Order, Product, Cart, CartProduct
 from django.shortcuts import render
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
 
 def index(request):
     product_list = Product.objects.all()
@@ -67,7 +71,7 @@ def addtocart(request, pro_id):
     return render(request, 'addtocart.html', {'product': product})
 
 
-@login_required(login_url='loginPage')
+# @login_required(login_url='loginPage')
 def mycart(request):
     if request.user.is_authenticated:
         cart_id = request.session.get('cart_id', None)
@@ -77,7 +81,22 @@ def mycart(request):
         else:
             return render(request, 'mycart.html')
     else:
-        return render(request, 'login.html', {'message': 'Please login to View products In cart.'})
+        if request.method == 'POST':
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                cart_id = request.session.get('cart_id', None)
+                if cart_id:
+                    cart = Cart.objects.get(id=cart_id)
+                    return render(request, 'mycart.html', {'cart': cart})
+                else:
+                    return render(request, 'mycart.html')
+            else:
+                return render(request, 'login.html', {'message': 'Invalid username or password.'})
+        else:
+            return render(request, 'login.html', {'message': 'Please login to view products in cart.'})
     
 
 
@@ -118,10 +137,62 @@ def emptycart(request):
         cart.save()
     return render(request, 'mycart.html')
 
+
+
 @login_required
 def checkout(request):
-    return render(request, 'checkout.html')
+    user = request.user
+    if request.method == 'POST':
+        form = CheckoutForm(request.POST)
+        if form.is_valid():
+            cart_id = request.session.get('cart_id')
+            if cart_id:
+                cart_obj = Cart.objects.get(id=cart_id)
+                form.instance.cart = cart_obj
+                form.instance.subTotal = cart_obj.total
+                form.instance.discount = 0
+                form.instance.total = cart_obj.total
+                form.instance.order_status = "Order Received"
+                del request.session['cart_id']
+                form.save()
+                message = "Your order has been placed."
+                # return render(request, 'index.html', {'message': message})
+                product_list = Product.objects.all()
+                return render(request, 'index.html', {'product_list': product_list, 'message': message})
+            else:
+                return redirect('home')
+    else:
+        form = CheckoutForm()
+
+    cart_id = request.session.get('cart_id', None)
+    if cart_id:
+        cart_obj = Cart.objects.get(id=cart_id)
+    else:
+        cart_obj = None
+
+    if request.user.is_authenticated:
+        print('User is authenticated')
+    else:    
+        return redirect('/login/?next=/checkout/')
+
+    context = {'form': form}
+    if cart_obj:
+        context['cart'] = cart_obj
+
+    return render(request, 'checkout.html', context)
 
 
+
+
+        
+
+def profile(request):
+    if request.user.is_authenticated:
+        user = request.user
+        
+        orders = Order.objects.filter(cart__customer=user).order_by('-id')
+        return render(request, 'my_profile.html', {'user': user, 'orders': orders})
+    else:
+        return redirect('/login/?next=/profile/')
 
 
