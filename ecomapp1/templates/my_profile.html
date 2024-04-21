@@ -11,7 +11,37 @@
             <p><span class="font-weight-bold">Email: </span> {{user.email}}</p>
             
         </div>
-        
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Shipping Address</th>
+                    <th>Mobile</th>
+                    <th>Email</th>
+                    <th>Subtotal</th>
+                    <th>Discount</th>
+                    <th>Total</th>
+                    <th>Order Status</th>
+                    <th>Order Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.shipping_address }}</td>
+                    <td>{{ order.mobile }}</td>
+                    <td>{{ order.email }}</td>
+                    <td>{{ order.subTotal }}</td>
+                    <td>{{ order.discount }}</td>
+                    <td>{{ order.total }}</td>
+                    <td>{{ order.order_status }}</td>
+                    <td>{{ order.created_at }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
     </div>
 </div>
 {% endblock %}

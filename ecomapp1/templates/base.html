@@ -37,6 +37,11 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'mycart' %}">Cart</a>
                 </li>
+                {% if user.is_superuser %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'all_orders' %}">Orders</a>
+                    </li>
+                {% endif %}
                 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"

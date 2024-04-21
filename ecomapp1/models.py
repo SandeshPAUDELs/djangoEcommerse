@@ -48,25 +48,30 @@ class CartProduct(models.Model):
     def __str__(self):
         return "Cart: " + str(self.cart.id) + "CartProduct: " + str(self.id)
     
-ORDER_STATUS =  {
-    ("Order Received", "Order Received"),
-    ("Order pending", "Order Pending"),
-    ("On the way", "On the way"),
-    ("Order Completed", "Order Completed"),
-    ("Order Cancelled", "Order Cancelled")
 
-}
 
 class Order(models.Model):  
+    PENDING = 'P'
+    SHIPPED = 'S'
+    DELIVERED = 'D'
+    CANCELLED = 'C'
+    ORDER_STATUS = [
+        (PENDING, 'Pending'),
+        (SHIPPED, 'Shipped'),
+        (DELIVERED, 'Delivered'),
+        (CANCELLED, 'Cancelled'),
+    ]
+
     cart = models.OneToOneField(Cart, on_delete=models.CASCADE)
-    ordered_by = models.CharField(max_length=200)
+    ordered_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
+    # when i use related_name = "orders' then i can access all the orders of a user by user.orders.all()   and by username also"
     shipping_address = models.CharField(max_length=200)
     mobile = models.CharField(max_length=10)
     email = models.EmailField(null=True, blank=True)
     subTotal = models.PositiveIntegerField()
     discount = models.PositiveIntegerField()
     total = models.PositiveIntegerField()
-    order_status = models.CharField(max_length = 50, choices=ORDER_STATUS)
+    order_status = models.CharField(max_length=1, choices=ORDER_STATUS, default=PENDING)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

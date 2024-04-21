@@ -139,6 +139,8 @@ def emptycart(request):
 
 
 
+
+
 @login_required
 def checkout(request):
     user = request.user
@@ -149,14 +151,14 @@ def checkout(request):
             if cart_id:
                 cart_obj = Cart.objects.get(id=cart_id)
                 form.instance.cart = cart_obj
+                form.instance.ordered_by = user
                 form.instance.subTotal = cart_obj.total
                 form.instance.discount = 0
                 form.instance.total = cart_obj.total
-                form.instance.order_status = "Order Received"
+                form.instance.order_status = "Order Pending"
                 del request.session['cart_id']
                 form.save()
                 message = "Your order has been placed."
-                # return render(request, 'index.html', {'message': message})
                 product_list = Product.objects.all()
                 return render(request, 'index.html', {'product_list': product_list, 'message': message})
             else:
@@ -170,9 +172,7 @@ def checkout(request):
     else:
         cart_obj = None
 
-    if request.user.is_authenticated:
-        print('User is authenticated')
-    else:    
+    if not request.user.is_authenticated:
         return redirect('/login/?next=/checkout/')
 
     context = {'form': form}
@@ -181,18 +181,18 @@ def checkout(request):
 
     return render(request, 'checkout.html', context)
 
-
-
-
         
+
 
 def profile(request):
     if request.user.is_authenticated:
         user = request.user
-        
-        orders = Order.objects.filter(cart__customer=user).order_by('-id')
+        orders = Order.objects.filter(ordered_by=user).order_by('-id')
         return render(request, 'my_profile.html', {'user': user, 'orders': orders})
     else:
         return redirect('/login/?next=/profile/')
 
 
+def all_orders(request):
+    orders = Order.objects.all().order_by('-id')
+    return render(request, 'ddmin_pages/orderspage.html', {'orders': orders})
