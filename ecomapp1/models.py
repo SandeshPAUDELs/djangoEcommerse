@@ -62,7 +62,13 @@ class Order(models.Model):
         (CANCELLED, 'Cancelled'),
     ]
 
+    METHOD = [
+        ('C', 'Cash On Delivery'),
+        ('K', 'Khalti Payment'),
+    ]
+
     cart = models.OneToOneField(Cart, on_delete=models.CASCADE)
+
     ordered_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     # when i use related_name = "orders' then i can access all the orders of a user by user.orders.all()   and by username also"
     shipping_address = models.CharField(max_length=200)
@@ -73,6 +79,8 @@ class Order(models.Model):
     total = models.PositiveIntegerField()
     order_status = models.CharField(max_length=1, choices=ORDER_STATUS, default=PENDING)
     created_at = models.DateTimeField(auto_now_add=True)
+    payment_method = models.CharField(max_length=1, choices=METHOD, default='C')
+    payment_completed = models.BooleanField(default=False, null=True, blank=True)
 
     def __str__(self):
         return "Order: " + str(self.id)
