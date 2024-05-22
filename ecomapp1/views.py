@@ -1,4 +1,7 @@
+import json
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
+import requests
 
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
@@ -160,7 +163,8 @@ def checkout(request):
                 form.save()
                 message = "Your order has been placed."
                 product_list = Product.objects.all()
-                return render(request, 'index.html', {'product_list': product_list, 'message': message})
+                # return render(request, 'index.html', {'product_list': product_list, 'message': message})
+                return render(request, 'khalti_integration.html')
             else:
                 return redirect('home')
     else:
@@ -196,3 +200,35 @@ def profile(request):
 def all_orders(request):
     orders = Order.objects.all().order_by('-id')
     return render(request, 'ddmin_pages/orderspage.html', {'orders': orders})
+
+def initkhalti(request):
+    url = "https://a.khalti.com/api/v2/epayment/initiate/"
+
+    payload = json.dumps({
+        "return_url": "http://example.com/",
+        "website_url": "https://example.com/",
+        "amount": "100",
+        "purchase_order_id": "Order01",
+        "purchase_order_name": "test",
+        "customer_info": {
+        "name": "Ram Bahadur",
+        "email": "test@khalti.com",
+        "phone": "9800000001"
+        }
+    })
+    headers = {
+        'Authorization': 'key live_secret_key_68791341fdd94846a146f0457ff7b455',
+        'Content-Type': 'application/json',
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    print(response.text)
+    new_res = json.loads(response.text)
+    print(new_res)
+    return redirect(new_res['payment_url'])
+    # return HttpResponse(response.text)
+    
+
+
+    
