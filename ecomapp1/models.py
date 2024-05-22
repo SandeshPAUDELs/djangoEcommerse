@@ -63,7 +63,6 @@ class Order(models.Model):
     ]
 
     METHOD = [
-        ('C', 'Cash On Delivery'),
         ('K', 'Khalti Payment'),
     ]
 
@@ -79,7 +78,7 @@ class Order(models.Model):
     total = models.PositiveIntegerField()
     order_status = models.CharField(max_length=1, choices=ORDER_STATUS, default=PENDING)
     created_at = models.DateTimeField(auto_now_add=True)
-    payment_method = models.CharField(max_length=1, choices=METHOD, default='C')
+    payment_method = models.CharField(max_length=1, choices=METHOD, default='K')
     payment_completed = models.BooleanField(default=False, null=True, blank=True)
 
     def __str__(self):

@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render
 import requests
 
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from ecomapp1.forms import CheckoutForm
 from ecomapp1.models import Category, Order, Product, Cart, CartProduct
 from django.shortcuts import render
@@ -71,7 +71,7 @@ def addtocart(request, pro_id):
         cart_obj.total += product.selling_price
         cart_obj.save()
 
-    return render(request, 'addtocart.html', {'product': product})
+    return render(request, 'addtocart.html', {'product': product, 'message': 'Item added to cart'}) 
 
 
 # @login_required(login_url='loginPage')
@@ -165,6 +165,7 @@ def checkout(request):
                 product_list = Product.objects.all()
                 # return render(request, 'index.html', {'product_list': product_list, 'message': message})
                 return render(request, 'khalti_integration.html')
+                # return redirect(reverse('initiate') + "? o_id=" + str(form.instance.id))
             else:
                 return redirect('home')
     else:
@@ -201,13 +202,16 @@ def all_orders(request):
     orders = Order.objects.all().order_by('-id')
     return render(request, 'ddmin_pages/orderspage.html', {'orders': orders})
 
+
+# below code is for khalti integration
+
 def initkhalti(request):
     url = "https://a.khalti.com/api/v2/epayment/initiate/"
 
     payload = json.dumps({
         "return_url": "http://example.com/",
         "website_url": "https://example.com/",
-        "amount": "100",
+        "amount": "1000",
         "purchase_order_id": "Order01",
         "purchase_order_name": "test",
         "customer_info": {
@@ -230,5 +234,37 @@ def initkhalti(request):
     # return HttpResponse(response.text)
     
 
+def verifyKhalti(request):
+    url = "https://a.khalti.com/api/v2/epayment/lookup/"
+    if request.method == 'GET':
+        headers = {
+            'Authorization': 'key 054dc89c105e49ed9b707155a2cce080',
+            'Content-Type': 'application/json',
+        }
+        pidx = request.GET.get('pidx')
+        data = json.dumps({
+            'pidx':pidx
+        })
+        res = requests.request('POST',url,headers=headers,data=data)
+        print(res)
+        print(res.text)
+
+        new_res = json.loads(res.text)
+        print(new_res)
+        
+
+        if new_res['status'] == 'Completed':
+            # user = request.user
+            # user.has_verified_dairy = True
+            # user.save()
+            # perform your db interaction logic
+            pass
+        
+        # else:
+        #     # give user a proper error message
+        #     raise BadRequest("sorry ")
+
+        return redirect('home')
+    
 
     

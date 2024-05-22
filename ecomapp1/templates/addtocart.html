@@ -5,6 +5,22 @@
 
 {% block content %}
 <div class="container">
-    <h3>Product added to cart successfully.</h3>
+    {% if message %}
+        <div class="alert alert-success" role="alert">
+            {{ message }}
+        </div>
+    {% endif %}
+
+<div class="container">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 text-left">
+                <a href="{% url 'mycart' %}" class="btn btn-primary">Go to My Cart</a>
+            </div>
+            <div class="col-md-6 text-right">
+                <a href="{% url 'home' %}" class="btn btn-primary">Back to Home</a>
+            </div>
+        </div>
+    </div></div>
 </div>
 {% endblock %}

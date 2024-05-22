@@ -17,6 +17,7 @@ urlpatterns = [
     path('all_orders/', views.all_orders, name='all_orders'),
     # path('khalti_integration/', views.khalti_intergration, name='khalti_integration')
     path('initiate',views.initkhalti,name="initiate"),
+    path('verify',views.verifyKhalti,name="verify")
 
 
 
