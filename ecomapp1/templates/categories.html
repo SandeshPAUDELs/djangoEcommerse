@@ -1,29 +1,54 @@
 {% extends 'base.html' %}
 
 {% block title %} All Products {% endblock %}
+
 {% load static %}
 
 {% block content %}
 <div class="container">
-    <h3>All Products</h3>
-    <hr>
-    {% for cat in allcategories %}
-    <h4>{{cat.title}}</h4>
-    <hr>
     <div class="row">
-        {% for product in products %}
-        {% if product.category == cat %}
         <div class="col-md-3">
-            <div class="m-4">
-                <h4><a href="{% url 'product_details' product.slug %}">{{product.title}}</a></h4>
-                <img src="{{product.image.url}}" alt="" class="img-fluid" style="height: 250px; object-fit: cover;">
-                <p class="mt-3">Price: <strike>Rs. {{product.marked_price}}</strike> Rs. {{product.selling_price}}</p>
-                <a href="{% url 'addtocart' product.id %}" class="btn btn-primary addtocart">Add To Cart</a>
+            <h3>Categories</h3>
+            <hr>
+            <ul class="">
+                {% for cat in allcategories %}
+                    <li class="list-group-item " style="list-style: none;">
+                        <!-- <button><a href="?category={{ cat.slug }}">{{ cat.title }}</a></button> -->
+                        <button class="ml-auto  m-1 btn-lg category-names btn btn-outline-secondary" type="submit" data-mdb-ripple-color="dark" >
+                            <a href="?category={{ cat.slug }}">{{ cat.title }}</a>                          </button>
+                    </li>
+                       
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="col-md-9">
+            <h3>Products</h3>
+            <hr>
+            {% if selected_category %}
+                <div class="alert alert-info">
+                    Showing products for: {{ selected_category.title }}
+                </div>
+            {% endif %}
+            <div class="row">
+                {% for product in products %}
+                    <div class="col-md-3">
+                        <div class="m-4">
+                            <h4>
+                                <a href="{% url 'product_details' product.slug %}">
+                                    {{ product.title }}
+                                </a>
+                            </h4>
+                            <img src="{{ product.image.url }}" alt="" class="img-fluid" style="height: 250px; object-fit: cover;">
+                            <p class="mt-3">
+                                Price: <strike>Rs. {{ product.marked_price }}</strike> Rs. {{ product.selling_price }}
+                            </p>
+                            <a href="{% url 'addtocart' product.id %}" class="btn btn-primary addtocart">Add To Cart</a>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
         </div>
-        {% endif %}
-        {% endfor %}
     </div>
-    {% endfor %}
 </div>
 {% endblock %}

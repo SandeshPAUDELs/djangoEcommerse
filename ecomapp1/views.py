@@ -23,10 +23,25 @@ def search(request):
         return render(request, 'search.html', {'results': results})
     
 
+# def categories(request):
+#     allcategories = Category.objects.all()
+#     products = Product.objects.all()  # Fetch all products
+#     return render(request, 'categories.html', {'allcategories': allcategories, 'products': products})
 def categories(request):
     allcategories = Category.objects.all()
-    products = Product.objects.all()  # Fetch all products
-    return render(request, 'categories.html', {'allcategories': allcategories, 'products': products})
+    products = Product.objects.all()
+
+    selected_category = None
+    category_slug = request.GET.get('category')  # Retrieve category from query string
+    if category_slug:
+        try:
+            selected_category = Category.objects.get(slug=category_slug)
+            products = products.filter(category=selected_category)  # Filter products based on category
+        except Category.DoesNotExist:
+            pass  # Handle case where category doesn't exist (optional)
+
+    context = {'allcategories': allcategories, 'products': products, 'selected_category': selected_category}
+    return render(request, 'categories.html', context)
 
 def product_details(request, slug):
     product = Product.objects.get(slug=slug)
@@ -80,7 +95,11 @@ def mycart(request):
         cart_id = request.session.get('cart_id', None)
         if cart_id:
             cart = Cart.objects.get(id=cart_id)
-            return render(request, 'mycart.html', {'cart': cart})
+            if cart.cartproduct_set.exists():
+                return render(request, 'mycart.html', {'cart': cart})
+            else:
+                message = 'Please add items to your cart to see your cart.'
+                return render(request, 'mycart.html', {'message': message})
         else:
             return render(request, 'mycart.html')
     else:
@@ -93,7 +112,11 @@ def mycart(request):
                 cart_id = request.session.get('cart_id', None)
                 if cart_id:
                     cart = Cart.objects.get(id=cart_id)
-                    return render(request, 'mycart.html', {'cart': cart})
+                    if cart.cartproduct_set.exists():
+                        return render(request, 'mycart.html', {'cart': cart})
+                    else:
+                        message = 'Please add items to your cart to see your cart.'
+                        return render(request, 'mycart.html', {'message': message})
                 else:
                     return render(request, 'mycart.html')
             else:
@@ -215,9 +238,9 @@ def initkhalti(request):
         "purchase_order_id": "Order01",
         "purchase_order_name": "test",
         "customer_info": {
-        "name": "Ram Bahadur",
-        "email": "test@khalti.com",
-        "phone": "9800000001"
+            "name": "Ram Bahadur",
+            "email": "none@gmail.com",
+            "phone": 98000001
         }
     })
     headers = {

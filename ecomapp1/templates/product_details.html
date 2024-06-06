@@ -5,31 +5,32 @@
 
 {% block content %}
 <div class="container">
-    <h3>Product: {{product.title}}</h3><hr>
     <div class="row">
-        <div class="col-md-4">
-            <img src="{{product.image.url}}" alt="" class="img-fluid">
-            <div class="row">
-                {% for pi in product.productimage_set.all %}
-                <div class="col-md-4 p-3">
-                    <a href="{{pi.image.url}}" target="_blank">
-                        <img src="{{pi.image.url}}" class="img-fluid" style="height: 100px; object-fit: contain;" alt="">
-                    </a>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        <div class="col-md-8">
-            <h4>{{product.title}} (Viewed {{product.view_count}} times)</h4>
-            <h5>Category: {{product.category}}</h5>
-            <h5>Price: <strike>Rs. {{product.marked_price}}</strike> Rs. {{product.selling_price}}</h5>
-            <a href="{% url 'addtocart' product.id %}" class="btn btn-info addtocart">Add To Cart</a>
-            <hr>
-            <p class="text-info">Warranty: {{product.warranty}}</p>
-            <p class="text-info">Return Policy:{{product.return_policy}}</p>
-            <hr>
-            <p>{{product.description}}</p>
-        </div>
+      <div class="col-md">
+        <img src="{{product.image.url}}" alt="" class="img-fluid">
     </div>
-</div>
+      <div class="col-md">
+        <h3>Product: {{product.title}}</h3><hr>
+<span>(Viewed {{product.view_count}} times)</span></span>
+            <br><br>
+            <p style = "text-decoration: bold; font-size: 20px;"><strike>Rs. {{product.marked_price}}</strike> Rs. {{product.selling_price}}<span style = "font-size: 15px;">/piece</span></p>
+            <h5>Category: <span class="badge bg-primary">{{product.category}}</span></h5>
+            <p>{{product.description}}</p>
+
+      <hr>
+      <p class="text-info">Warranty: {{product.warranty}}</p>
+            <p class="text-info">Return Policy:{{product.return_policy}}</p>
+
+      <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+        <div class="btn-group me-2" role="group" aria-label="First group">
+            <a href="{% url 'addtocart' product.id %}" class="btn btn-success addtocart">Add To Cart</a>
+          </div>
+        
+        
+      </div>
+        </div>
+      
+    </div>
+  </div>
+
 {% endblock %}

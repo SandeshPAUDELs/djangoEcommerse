@@ -47,6 +47,7 @@ def loginPage(request):
 
         if user is not None:
             login(request, user)
+            messages.success(request, f'Welcome {user.username} to this website')
             return redirect('home')
         else:
             messages.error(request, 'Username OR password is incorrect')

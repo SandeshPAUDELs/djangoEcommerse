@@ -13,8 +13,16 @@
 {% endif %}
 
 <h3></h3>
-<h1 class="text-center">Welcome to our ecommerce website. </h1>
-    <hr>
+{% if messages %}
+                        <div class="messages">
+                            {% for message in messages %}
+                            <div class="alert alert-success" role="alert">
+                                {{ message }}
+                            </div>
+                            {% endfor %}
+                            
+                        </div>
+                    {% endif %}
     <div class="row mt-4">
         {% for p in product_list %}
 
