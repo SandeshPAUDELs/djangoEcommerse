@@ -10,6 +10,8 @@ from ecomapp1.models import Category, Order, Product, Cart, CartProduct
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
+from ecomapp1.serializers import ProductSerializer
+from rest_framework import viewsets
 
 def index(request):
     product_list = Product.objects.all()
@@ -290,4 +292,6 @@ def verifyKhalti(request):
         return redirect('home')
     
 
-    
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer

@@ -1,7 +1,12 @@
 from django.contrib import admin
 from django.urls import include, path
+from rest_framework import routers
 
 from ecomapp1 import views
+from ecomapp1.views import ProductViewSet
+
+router = routers.DefaultRouter()
+router.register(r'products', ProductViewSet)
 
 urlpatterns = [
     path('', views.index, name='home'),
@@ -17,8 +22,8 @@ urlpatterns = [
     path('all_orders/', views.all_orders, name='all_orders'),
     # path('khalti_integration/', views.khalti_intergration, name='khalti_integration')
     path('initiate',views.initkhalti,name="initiate"),
-    path('verify',views.verifyKhalti,name="verify")
-
+    path('verify',views.verifyKhalti,name="verify"),
+    path('api/', include(router.urls)),
 
 
 
