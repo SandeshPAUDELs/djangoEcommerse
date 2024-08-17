@@ -6,6 +6,14 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.core.mail import send_mail
 from django.conf import settings
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authentication import TokenAuthentication, SessionAuthentication
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
+
+from authentication.serializers import AuthTokenSerializer, UserSerializer
 
 
 
@@ -110,3 +118,39 @@ def forget_password(request):
         return redirect('loginPage')
     else:
         return render(request, 'forget_password.html')
+    
+
+
+class RegisterUserViewSet(viewsets.ModelViewSet):
+    permission_classes = [AllowAny]  # Allow anyone to access this view
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        token, created = Token.objects.get_or_create(user=user)
+        serializer = UserSerializer(user, context={'request': request})
+        return Response({'token': token.key, 'payload': serializer.data}, status=201)
+    #  code for get 
+    def list(self, request):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True, context={'request': request})
+        tokens = Token.objects.filter(user__isnull=False)
+        return Response({'users': serializer.data})
+    
+
+class ObtainAuthTokenViewSet(viewsets.ViewSet):
+    permission_classes = [AllowAny]  # Allow anyone to access this view
+    serializer_class = AuthTokenSerializer
+
+    def create(self, request, *args, **kwargs):
+        
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            user = serializer.validated_data
+            token, created = Token.objects.get_or_create(user=user)
+            # token = 
+            return Response({'token': token.key, 'user_id': token.user_id, 'username': user.username})
+        return Response(serializer.errors, status=400)

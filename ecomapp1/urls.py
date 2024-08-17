@@ -3,10 +3,15 @@ from django.urls import include, path
 from rest_framework import routers
 
 from ecomapp1 import views
-from ecomapp1.views import ProductViewSet
+from ecomapp1.views import ProductViewSet, CategoryViewSet
 
 router = routers.DefaultRouter()
 router.register(r'products', ProductViewSet)
+router.register(r'categories', CategoryViewSet)
+router.register(r'cart', views.CartViewSet)
+router.register(r'cartproduct', views.CartProductViewSet)
+router.register(r'order', views.OrderViewSet)
+
 
 urlpatterns = [
     path('', views.index, name='home'),
@@ -20,10 +25,10 @@ urlpatterns = [
     path('checkout/', views.checkout, name='checkout'),
     path('profile/', views.profile, name='profile'),
     path('all_orders/', views.all_orders, name='all_orders'),
-    # path('khalti_integration/', views.khalti_intergration, name='khalti_integration')
     path('initiate',views.initkhalti,name="initiate"),
     path('verify',views.verifyKhalti,name="verify"),
     path('api/', include(router.urls)),
+    # path('categories', include(router.urls)),
 
 
 

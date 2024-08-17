@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'ecomapp1',
     'authentication',
     'rest_framework',
+    'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [
